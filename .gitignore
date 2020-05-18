@@ -9,6 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.resx
+DLC.Bot/TwitchInfo.Designer.cs
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
