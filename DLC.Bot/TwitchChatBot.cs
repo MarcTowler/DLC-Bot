@@ -4,6 +4,9 @@ using TwitchLib.Client.Events;
 using TwitchLib.Client;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Communication.Models;
+using DLC.Bot.GAPI;
+using System.Timers;
+using System.Collections.Generic;
 
 namespace DLC.Bot
 {
@@ -12,10 +15,14 @@ namespace DLC.Bot
         readonly ConnectionCredentials credentials = new ConnectionCredentials(TwitchInfo.BotUser, TwitchInfo.BotToken);
         TwitchClient client;
         public string message;
+        private static Timer aTimer;
+        List<TwitchUser> Users = new List<TwitchUser>();
+        const string noProfile = " it looks like you do not have a player setup or your Twitch profile is not linked";
 
         internal void Connect()
         {
             Console.WriteLine("Initializing The Bot...");
+            SetTimer();
 
             var wsClient = new WebSocketClient(new ClientOptions { MessagesAllowedInPeriod = 100, ThrottlingPeriod = TimeSpan.FromSeconds(30) });
 
@@ -23,17 +30,30 @@ namespace DLC.Bot
             client.Initialize(credentials, TwitchInfo.ChannelName);
 
 
-            client.OnConnected += Client_OnConnected;
-            client.OnJoinedChannel += Client_OnJoinedChannel;
-            client.OnMessageReceived += Client_OnMessageReceived;
-            client.OnNewSubscriber += Client_OnNewSubscriber;
-            client.OnReSubscriber += Client_OnReSubscriber;
+            client.OnConnected          += Client_OnConnected;
+            client.OnJoinedChannel      += Client_OnJoinedChannel;
+            client.OnMessageReceived    += Client_OnMessageReceived;
+            client.OnNewSubscriber      += Client_OnNewSubscriber;
+            client.OnReSubscriber       += Client_OnReSubscriber;
             client.OnGiftedSubscription += Client_OnGiftedSubscription;
-            client.OnBeingHosted += Client_OnBeingHosted;
-            client.OnWhisperReceived += Client_OnWhisperReceived;
-            client.OnRaidNotification += Client_OnRaidNotification;
+            client.OnBeingHosted        += Client_OnBeingHosted;
+            client.OnWhisperReceived    += Client_OnWhisperReceived;
+            client.OnRaidNotification   += Client_OnRaidNotification;
+            client.OnUserJoined         += Client_OnUserJoined;
 
             client.Connect();
+        }
+
+        private void Client_OnUserJoined(object sender, OnUserJoinedArgs e)
+        {
+            TwitchUser tu = new TwitchUser(e.Username, DateTime.Now);
+
+            if(!Users.Contains(tu))
+            {
+                Users.Add(tu);
+            }
+
+            Console.WriteLine(e.Username);
         }
 
         private void Client_OnRaidNotification(object sender, OnRaidNotificationArgs e)
@@ -100,6 +120,21 @@ namespace DLC.Bot
             {
                 client.SendMessage(TwitchInfo.ChannelName, $"Hello {e.ChatMessage.DisplayName}");
             }
+
+            if(e.ChatMessage.Message.StartsWith("!litcoins", StringComparison.InvariantCultureIgnoreCase))
+            {
+                var users = new Users();
+                int response = users.GetPoints(e.ChatMessage.UserId);
+
+                if (response < 0)
+                {
+                    client.SendMessage(TwitchInfo.ChannelName, $"{e.ChatMessage.DisplayName}, {noProfile}");
+
+                    return;
+                }
+                
+                client.SendMessage(TwitchInfo.ChannelName, $"You currently have {response} LitCoins available");
+            }
         }
 
         private void Client_OnJoinedChannel(object sender, OnJoinedChannelArgs e)
@@ -112,9 +147,28 @@ namespace DLC.Bot
             Console.WriteLine("Connected to Twitch!");
         }
 
+        private static void SetTimer()
+        {
+            // Create a timer with a two second interval.
+            aTimer = new System.Timers.Timer(300000);
+            // Hook up the Elapsed event for the timer. 
+            aTimer.Elapsed += OnTimedEvent;
+            aTimer.AutoReset = true;
+            aTimer.Enabled = true;
+        }
+
+        private static void OnTimedEvent(object sender, ElapsedEventArgs e)
+        {
+            Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
+                          e.SignalTime);
+        }
+
         internal void Disconnect()
         {
             Console.WriteLine("Disconnecting Bot...");
+
+            aTimer.Stop();
+            aTimer.Dispose();
         }
     }
 }

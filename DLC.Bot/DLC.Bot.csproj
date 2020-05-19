@@ -5,4 +5,31 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="TwitchLib.Api" Version="3.1.3" />
+    <PackageReference Include="TwitchLib.Api.Core" Version="3.1.3" />
+    <PackageReference Include="TwitchLib.Api.Core.Models" Version="3.1.3" />
+    <PackageReference Include="TwitchLib.Client" Version="3.1.5" />
+    <PackageReference Include="TwitchLib.Client.Models" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DLC.Bot.GAPI\DLC.Bot.GAPI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="TwitchInfo.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TwitchInfo.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="TwitchInfo.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TwitchInfo.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
