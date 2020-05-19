@@ -6,7 +6,13 @@ namespace DLC.Bot
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var bot = new TwitchChatBot();
+
+            bot.Connect();
+
+            Console.ReadLine();
+
+            bot.Disconnect();
         }
     }
 }
