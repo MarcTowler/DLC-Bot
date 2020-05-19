@@ -1,5 +1,8 @@
 ﻿using RestSharp;
+using System.Collections.Generic;
 using System.Net;
+using DLC.Bot;
+using System;
 
 namespace DLC.Bot.GAPI
 {
@@ -24,6 +27,10 @@ namespace DLC.Bot.GAPI
             return int.Parse(response.Content);
         }
 
-
+        public bool AddPoints(string TwitchUsers)
+        {
+            Console.WriteLine($"DEBUG: {TwitchUsers}");
+            return true;
+        }
     }
 }

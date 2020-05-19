@@ -7,6 +7,7 @@ using TwitchLib.Communication.Models;
 using DLC.Bot.GAPI;
 using System.Timers;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DLC.Bot
 {
@@ -16,7 +17,8 @@ namespace DLC.Bot
         TwitchClient client;
         public string message;
         private static Timer aTimer;
-        List<TwitchUser> Users = new List<TwitchUser>();
+        static Users GAPIuser = new Users();
+        static List<TwitchUser> Users = new List<TwitchUser>();
         const string noProfile = " it looks like you do not have a player setup or your Twitch profile is not linked";
 
         internal void Connect()
@@ -40,8 +42,21 @@ namespace DLC.Bot
             client.OnWhisperReceived    += Client_OnWhisperReceived;
             client.OnRaidNotification   += Client_OnRaidNotification;
             client.OnUserJoined         += Client_OnUserJoined;
+            client.OnUserLeft           += Client_OnUserLeft;
 
             client.Connect();
+        }
+
+        private void Client_OnUserLeft(object sender, OnUserLeftArgs e)
+        {
+            var tu = Users.FirstOrDefault(x => x.Username == e.Username); 
+            
+            if(tu != null) 
+            { 
+                Users.Remove(tu); 
+            }
+
+            Console.WriteLine($"LEFT: {e.Username}");
         }
 
         private void Client_OnUserJoined(object sender, OnUserJoinedArgs e)
@@ -53,7 +68,7 @@ namespace DLC.Bot
                 Users.Add(tu);
             }
 
-            Console.WriteLine(e.Username);
+            Console.WriteLine($"JOIN: {e.Username}");
         }
 
         private void Client_OnRaidNotification(object sender, OnRaidNotificationArgs e)
@@ -150,7 +165,7 @@ namespace DLC.Bot
         private static void SetTimer()
         {
             // Create a timer with a two second interval.
-            aTimer = new System.Timers.Timer(300000);
+            aTimer = new System.Timers.Timer(600000); // 300k for 5 min
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
             aTimer.AutoReset = true;
@@ -161,6 +176,15 @@ namespace DLC.Bot
         {
             Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
                           e.SignalTime);
+
+            for(int x = 0; x < Users.Count; x++)
+            {
+                if(Users[x].IsEligable)
+                {
+                    GAPIuser.AddPoints(Users[x].Username);
+                }
+            }
+
         }
 
         internal void Disconnect()

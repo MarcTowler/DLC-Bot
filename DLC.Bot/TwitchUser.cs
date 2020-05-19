@@ -2,15 +2,18 @@
 
 namespace DLC.Bot
 {
-    class TwitchUser
+    public class TwitchUser
     {
-        public string user = "";
-        public DateTime joinTime;
+        //public string Id { get; }
+        public string Username { get; }
+        public DateTime Update { get; set; }
+        public bool IsEligable { get { return (DateTime.Now - Update).TotalMinutes >= 5; } }
 
-        public TwitchUser(string _user, DateTime Joined)
+        public TwitchUser(/*string id, */string username, DateTime update)
         {
-            user = _user;
-            joinTime = Joined;
+            //Id = id;
+            Username = username;
+            Update = update;
         }
     }
 }
