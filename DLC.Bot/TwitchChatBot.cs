@@ -20,6 +20,7 @@ namespace DLC.Bot
         static Users GAPIuser = new Users();
         static List<TwitchUser> Users = new List<TwitchUser>();
         const string noProfile = " it looks like you do not have a player setup or your Twitch profile is not linked";
+        PubSub ps = new PubSub();
 
         internal void Connect()
         {
@@ -45,6 +46,8 @@ namespace DLC.Bot
             client.OnUserLeft           += Client_OnUserLeft;
 
             client.Connect();
+            ps.Connect();
+            
         }
 
         private void Client_OnUserLeft(object sender, OnUserLeftArgs e)
@@ -76,6 +79,8 @@ namespace DLC.Bot
             Console.WriteLine($"(RAID) {e.RaidNotification.DisplayName} has raided with {e.RaidNotification.MsgParamViewerCount} viewers");
             client.SendMessage(TwitchInfo.ChannelName, $"INCOMINGGGGGG raid of {e.RaidNotification.MsgParamViewerCount} viewers from {e.RaidNotification.DisplayName}");
             client.SendMessage(TwitchInfo.ChannelName, $"Chat, go drop a follow to {e.RaidNotification.DisplayName} for being awesome https://twitch.tv/{e.RaidNotification.DisplayName}");
+
+            GAPIuser.AddPoints(e.RaidNotification.UserId, 150);
         }
 
         private void Client_OnWhisperReceived(object sender, OnWhisperReceivedArgs e)
@@ -165,7 +170,7 @@ namespace DLC.Bot
         private static void SetTimer()
         {
             // Create a timer with a two second interval.
-            aTimer = new System.Timers.Timer(600000); // 300k for 5 min
+            aTimer = new Timer(600000); // 300k for 5 min
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
             aTimer.AutoReset = true;
@@ -181,7 +186,7 @@ namespace DLC.Bot
             {
                 if(Users[x].IsEligable)
                 {
-                    GAPIuser.AddPoints(Users[x].Username);
+                    GAPIuser.AddPoints(Users[x].Id, 2);
                 }
             }
 
