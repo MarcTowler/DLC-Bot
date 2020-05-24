@@ -35,7 +35,7 @@ namespace DLC.Bot.GAPI
             //TODO: POST request to GAPI to add points to user, need to check before hand if they are a sub and/or follower as that affects points awarded
             Console.WriteLine($"DEBUG: {TwitchUsers}");
             JObject jBody = new JObject();
-            jBody.Add("result", "true");
+            jBody.Add("result", "Win");
             jBody.Add("id", TwitchUsers);
             jBody.Add("flag", 0);
             jBody.Add("amount", points);

@@ -16,14 +16,39 @@ namespace DLC.Bot
             client.OnListenResponse += onListenResponse;
             client.OnStreamUp += onStreamUp;
             client.OnStreamDown += onStreamDown;
+            client.OnBitsReceived += onBitsReceived;
+            client.OnRewardRedeemed += onRewardRedeemed;
+            client.OnFollow += onFollow;
+            client.OnChannelSubscription += onSubscription;
+
             client.ListenToBitsEvents("57026834");
             client.ListenToFollows("57026834");
             client.ListenToRewards("57026834");
             client.ListenToSubscriptions("57026834");
+            client.ListenToVideoPlayback("57026834");
 
             client.Connect();
 
-            //client.ListenToVideoPlayback("{{CHANNEL}}");
+        }
+
+        private void onSubscription(object sender, OnChannelSubscriptionArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void onFollow(object sender, OnFollowArgs e)
+        {
+            Console.WriteLine($"NEW FOLLOWER: {e.DisplayName}");
+        }
+
+        private void onRewardRedeemed(object sender, OnRewardRedeemedArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void onBitsReceived(object sender, OnBitsReceivedArgs e)
+        {
+            Console.WriteLine($"BITS: {e.BitsUsed} from {e.Username}");
         }
 
         private static void onPubSubServiceConnected(object sender, EventArgs e)
@@ -36,9 +61,10 @@ namespace DLC.Bot
         private static void onListenResponse(object sender, OnListenResponseArgs e)
         {
             if (!e.Successful)
+            {
                 throw new Exception($"Failed to listen! Response: {e.Response}");
-            
-            Console.WriteLine(e.Topic);
+            }
+            Console.WriteLine($"Listening to {e.Topic}");
         }
 
         private static void onStreamUp(object sender, OnStreamUpArgs e)

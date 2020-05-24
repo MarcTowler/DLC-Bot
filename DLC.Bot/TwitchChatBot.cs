@@ -7,7 +7,6 @@ using TwitchLib.Communication.Models;
 using DLC.Bot.GAPI;
 using System.Timers;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DLC.Bot
 {
@@ -21,10 +20,13 @@ namespace DLC.Bot
         static List<TwitchUser> Users = new List<TwitchUser>();
         const string noProfile = " it looks like you do not have a player setup or your Twitch profile is not linked";
         PubSub ps = new PubSub();
+        static API _api = new API();
 
         internal void Connect()
         {
             Console.WriteLine("Initializing The Bot...");
+            _api.Connect();
+
             SetTimer();
 
             var wsClient = new WebSocketClient(new ClientOptions { MessagesAllowedInPeriod = 100, ThrottlingPeriod = TimeSpan.FromSeconds(30) });
@@ -33,45 +35,58 @@ namespace DLC.Bot
             client.Initialize(credentials, TwitchInfo.ChannelName);
 
 
-            client.OnConnected          += Client_OnConnected;
-            client.OnJoinedChannel      += Client_OnJoinedChannel;
-            client.OnMessageReceived    += Client_OnMessageReceived;
-            client.OnNewSubscriber      += Client_OnNewSubscriber;
-            client.OnReSubscriber       += Client_OnReSubscriber;
-            client.OnGiftedSubscription += Client_OnGiftedSubscription;
-            client.OnBeingHosted        += Client_OnBeingHosted;
-            client.OnWhisperReceived    += Client_OnWhisperReceived;
-            client.OnRaidNotification   += Client_OnRaidNotification;
-            client.OnUserJoined         += Client_OnUserJoined;
-            client.OnUserLeft           += Client_OnUserLeft;
+            client.OnConnected           += Client_OnConnected;
+            client.OnJoinedChannel       += Client_OnJoinedChannel;
+            client.OnMessageReceived     += Client_OnMessageReceived;
+            client.OnNewSubscriber       += Client_OnNewSubscriber;
+            client.OnReSubscriber        += Client_OnReSubscriber;
+            client.OnGiftedSubscription  += Client_OnGiftedSubscription;
+            client.OnBeingHosted         += Client_OnBeingHosted;
+            client.OnWhisperReceived     += Client_OnWhisperReceived;
+            client.OnRaidNotification    += Client_OnRaidNotification;
+            client.OnUserJoined          += Client_OnUserJoined;
+            client.OnUserLeft            += Client_OnUserLeft;
+            client.OnChatCommandReceived += Client_OnChatCommandReceived;
+            client.OnIncorrectLogin      += Client_OnIncorrectLogin;
 
             client.Connect();
             ps.Connect();
             
         }
 
+        private void Client_OnIncorrectLogin(object sender, OnIncorrectLoginArgs e)
+        {
+            Console.WriteLine($"AUTH ERROR: {e.Exception.Message}");
+        }
+
+        private void Client_OnChatCommandReceived(object sender, OnChatCommandReceivedArgs e)
+        {
+            Console.WriteLine(e.Command.CommandText);
+            Console.WriteLine(e.Command.ArgumentsAsString);
+        }
+
         private void Client_OnUserLeft(object sender, OnUserLeftArgs e)
         {
-            var tu = Users.FirstOrDefault(x => x.Username == e.Username); 
+            /*var tu = Users.FirstOrDefault(x => x.Username == e.Username); 
             
             if(tu != null) 
             { 
                 Users.Remove(tu); 
             }
 
-            Console.WriteLine($"LEFT: {e.Username}");
+            Console.WriteLine($"LEFT: {e.Username}");*/
         }
 
         private void Client_OnUserJoined(object sender, OnUserJoinedArgs e)
         {
-            TwitchUser tu = new TwitchUser(e.Username, DateTime.Now);
+            /*TwitchUser tu = new TwitchUser(e.Username, DateTime.Now);
 
             if(!Users.Contains(tu))
             {
                 Users.Add(tu);
             }
 
-            Console.WriteLine($"JOIN: {e.Username}");
+            Console.WriteLine($"JOIN: {e.Username}");*/
         }
 
         private void Client_OnRaidNotification(object sender, OnRaidNotificationArgs e)
@@ -170,7 +185,7 @@ namespace DLC.Bot
         private static void SetTimer()
         {
             // Create a timer with a two second interval.
-            aTimer = new Timer(600000); // 300k for 5 min
+            aTimer = new Timer(60000); // 300k for 5 min
             // Hook up the Elapsed event for the timer. 
             aTimer.Elapsed += OnTimedEvent;
             aTimer.AutoReset = true;
@@ -182,11 +197,15 @@ namespace DLC.Bot
             Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
                           e.SignalTime);
 
+            Users = _api.getChatters();
+
             for(int x = 0; x < Users.Count; x++)
             {
                 if(Users[x].IsEligable)
                 {
-                    GAPIuser.AddPoints(Users[x].Id, 2);
+                    GAPIuser.AddPoints(Users[x].Username, 2);
+
+                    Users[x].Update = DateTime.Now; //resets the timer for a fresh 5 minutes
                 }
             }
 
