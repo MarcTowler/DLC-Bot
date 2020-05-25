@@ -10,4 +10,19 @@
     <PackageReference Include="RestSharp.Serializers.NewtonsoftJson" Version="106.11.4" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="GAPIinfo.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GAPIinfo.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="GAPIinfo.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>GAPIinfo.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>
