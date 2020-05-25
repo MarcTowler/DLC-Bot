@@ -1,5 +1,6 @@
 ﻿using DLC.Bot;
 using System;
+using System.Drawing;
 using TwitchLib.PubSub;
 using TwitchLib.PubSub.Events;
 
@@ -64,7 +65,7 @@ namespace DLC.Bot
             {
                 throw new Exception($"Failed to listen! Response: {e.Response}");
             }
-            Console.WriteLine($"Listening to {e.Topic}");
+            Console.WriteLine($"Listening to {e.Topic}", Color.Green);
         }
 
         private static void onStreamUp(object sender, OnStreamUpArgs e)
