@@ -170,6 +170,18 @@ namespace DLC.Bot
                 
                 client.SendMessage(TwitchInfo.ChannelName, $"You currently have {response} LitCoins available");
             }
+
+            if (e.ChatMessage.Message.StartsWith("!discord", StringComparison.InvariantCultureIgnoreCase))
+            {
+                client.SendMessage(TwitchInfo.ChannelName, "You can join The DLC Discord at https://discord.itslit.uk");
+            }
+
+            if (e.ChatMessage.Message.StartsWith("!q", StringComparison.InvariantCultureIgnoreCase))
+            {
+                GAPIuser.AskQuestion(e.ChatMessage.DisplayName, e.ChatMessage.Message);
+
+                client.SendMessage(TwitchInfo.ChannelName, "Question Added!");
+            }
         }
 
         private void Client_OnJoinedChannel(object sender, OnJoinedChannelArgs e)
@@ -194,8 +206,8 @@ namespace DLC.Bot
 
         private static void OnTimedEvent(object sender, ElapsedEventArgs e)
         {
-            Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
-                          e.SignalTime);
+            //Console.WriteLine("The Elapsed event was raised at {0:HH:mm:ss.fff}",
+            //              e.SignalTime);
 
             Users = _api.getChatters();
 

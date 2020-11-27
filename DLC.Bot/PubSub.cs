@@ -63,7 +63,7 @@ namespace DLC.Bot
         {
             if (!e.Successful)
             {
-                throw new Exception($"Failed to listen! Response: {e.Response}");
+                throw new Exception($"Failed to listen! Response: {e.Response.Error}");
             }
             Console.WriteLine($"Listening to {e.Topic}", Color.Green);
         }

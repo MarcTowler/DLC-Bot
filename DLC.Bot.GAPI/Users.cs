@@ -68,5 +68,13 @@ namespace DLC.Bot.GAPI
             request.AddParameter("application/json", rBody, ParameterType.RequestBody);
             return true;
         }
+
+        public bool AskQuestion(string Twitchuser, string Question)
+        {
+            client = new RestClient("https://api.itslit.uk/Questions/add/itslittany");
+            var request = new RestRequest($"{Twitchuser}/{Question}",DataFormat.Json);
+            var response = client.Get(request);
+            return true;
+        }
     }
 }
