@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNet.SignalR.Client;
+using System;
 using System.Drawing;
 using System.Threading;
 using Console = Colorful.Console;
@@ -9,9 +10,15 @@ namespace DLC.Bot
     {
         public static bool Cancelled;
         private static TwitchChatBot bot;
+        HubConnection connection;
 
         static void Main(string[] args)
         {
+            connection = new HubConnectionBuilder()
+                .WithUrl("https://localhost:7112/chathub")
+                .WithAutomaticReconnect()
+                .Build();
+            
             Console.BackgroundColor = Color.FromArgb(51, 51, 51);
             Console.Title = "DLC Bot";
             Console.Clear();
